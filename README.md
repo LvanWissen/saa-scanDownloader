@@ -5,6 +5,7 @@ Download scans from the Amsterdam City Archives.
 ```bash
 Usage:
     downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder>
+    downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder> --concordance False
     downloadScans.py (-h | --help)
 
 Arguments:
@@ -20,9 +21,14 @@ Arguments:
 
 Options:
     -h --help       Show this screen.
+    --concordance <true_or_false>  Save a concordance.json file with scanname and uuid [default: True]
 ```
 
 ### Example
 ```bash
 $ python downloadScans.py 30398 11 1.11 69 data/jpg
+```
+
+```bash
+$ python downloadScans.py 30398 11 1.11 69 data/jpg --concordance False
 ```

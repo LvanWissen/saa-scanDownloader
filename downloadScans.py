@@ -3,6 +3,7 @@ saa-scanDownloader
 
 Usage:
     downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder>
+    downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder> --concordance False
     downloadScans.py (-h | --help)
 
 Arguments:
@@ -18,6 +19,7 @@ Arguments:
 
 Options:
     -h --help       Show this screen.
+    --concordance <true_or_false>  Save a concordance.json file with scanname and uuid [default: True]
 """
 
 import os
@@ -105,9 +107,12 @@ def downloadScan(uuidScan: str, scanName: str, folder: str = 'data'):
                 outfile.write(chunk)
 
 
-def main(path, nscans, collectionNumber, inventoryNumber, folder):
+def main(path, nscans, collectionNumber, inventoryNumber, folder,
+         concordancefile):
 
     folder = os.path.join(folder, inventoryNumber)
+    if concordancefile:
+        concordance = dict()
 
     # 1. Obtain the scan metadata
     scans = getScans(path, nscans, collectionNumber)
@@ -120,7 +125,19 @@ def main(path, nscans, collectionNumber, inventoryNumber, folder):
 
         print(f"\t{n}/{nscans}\t{name}.jpg")
         downloadScan(uuid, name, folder)
+
+        if concordancefile:
+            concordance[name] = uuid
+
         time.sleep(1)
+
+        break
+
+    if concordancefile:
+        with open(os.path.join(folder, 'concordance.json'),
+                  'w',
+                  encoding='utf-8') as jsonfile:
+            json.dump(concordance, jsonfile, indent=4)
 
 
 if __name__ == "__main__":
@@ -132,7 +149,9 @@ if __name__ == "__main__":
     PATH = arguments['<path>']
     NSCANS = int(arguments['<nscans>'])
     FOLDER = arguments['<folder>']
+    CONCORDANCEFILE = True if arguments['--concordance'] == 'True' else False
 
     os.makedirs(os.path.join(FOLDER, INVENTORYNUMBER), exist_ok=True)
 
-    main(PATH, NSCANS, COLLECTIONNUMBER, INVENTORYNUMBER, FOLDER)
+    main(PATH, NSCANS, COLLECTIONNUMBER, INVENTORYNUMBER, FOLDER,
+         CONCORDANCEFILE)
