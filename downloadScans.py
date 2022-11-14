@@ -131,7 +131,7 @@ def main(path, nscans, collectionNumber, inventoryNumber, folder,
 
         time.sleep(1)
 
-        break
+        # break
 
     if concordancefile:
         with open(os.path.join(folder, 'concordance.json'),
