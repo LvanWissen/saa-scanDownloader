@@ -97,6 +97,9 @@ def downloadScan(uuidScan: str, scanName: str, folder: str = 'data'):
 
     fp = os.path.join(folder, scanName + ".jpg")
 
+    if os.path.exists(fp):
+        return
+    
     url = DOWNLOADURL + uuidScan + '.jpg'
 
     r = requests.get(url, stream=True)
