@@ -2,10 +2,15 @@
 Download scans from the Amsterdam City Archives. 
 
 ## How to use
+
+_First install any dependencies with `pip install -r requirements.txt`._
+
 ```bash
 Usage:
-    downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder>
-    downloadScans.py <collectionNumber> <inventoryNumber> <path> <nscans> <folder> --concordance False
+    downloadScans.py ead <url> <folder>
+    downloadScans.py ead <url> <folder> --concordance False
+    downloadScans.py file <collectionNumber> <inventoryNumber> <path> <folder>
+    downloadScans.py file <collectionNumber> <inventoryNumber> <path> <folder> --concordance False
     downloadScans.py (-h | --help)
 
 Arguments:
@@ -14,8 +19,6 @@ Arguments:
   path              Path in the new (d.d. 2020) search environment. You can see
                     this by clicking on a inventory number and check the address
                     bar. E.g. 1.6. 
-  nscans            How many scans are in this inventory? This can also be read
-                    from the SAA website. 
   folder            Output folder. A folder with the inventory number is
                     automatically created in this folder.   
 
@@ -25,6 +28,19 @@ Options:
 ```
 
 ### Example
+
+Download an entire Collection from an EAD URL:
+
+```bash
+$ python downloadScans.py ead "https://archief.amsterdam/archives/xml/5001.ead.xml" data
+```
+
+```bash
+$ python downloadScans.py ead "https://archief.amsterdam/archives/xml/5001.ead.xml" data --concordance False
+```
+
+Download a single inventory number from a collection:
+
 ```bash
 $ python downloadScans.py 30398 11 1.11 69 data/jpg
 ```
