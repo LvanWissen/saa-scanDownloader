@@ -282,6 +282,11 @@ def downloadScansFromEAD(c, folder, concordancefile):
 def downloadFile(path, collectionNumber, inventoryNumber, folder, concordancefile):
 
     folder = os.path.join(folder, collectionNumber, inventoryNumber)
+
+    if os.path.exists(folder):
+        print(f"Folder {folder} already exists. Already downloaded?")
+        return
+
     if concordancefile:
         concordance = dict()
 
@@ -339,7 +344,7 @@ if __name__ == "__main__":
         collectionNumber = c.id
         elements = flatten_ead_tree(c)
 
-        for element in sorted(elements, key=lambda x: x.path):
+        for element in elements:
             if not element.hasPart:  # File level
                 path = element.path
                 inventoryNumber = element.id
