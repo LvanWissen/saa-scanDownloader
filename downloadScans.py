@@ -34,7 +34,7 @@ import xml.etree.ElementTree as ET
 
 from docopt import docopt
 
-APIURL = "https://webservices.picturae.com/archives/scans/"
+APIURL = "https://webservices8.memorix.nl/archives/scans/"
 
 DOWNLOADURL = "https://download-images.memorix.nl/ams/download/fullsize/"
 
