@@ -9,6 +9,7 @@ Usage:
     downloadScans.py (-h | --help)
 
 Arguments:
+  url               URL to an EAD file.
   collectionNumber  Collection number in the SAA inventory.
   inventoryNumber   Inventory number from the collection.
   path              Path in the new (d.d. 2020) search environment. You can see
@@ -23,7 +24,6 @@ Options:
 """
 
 import os
-import math
 import time
 import requests
 import json
@@ -34,7 +34,7 @@ import xml.etree.ElementTree as ET
 
 from docopt import docopt
 
-APIURL = "https://webservices8.memorix.nl/archives/scans/"
+APIURL = "https://webservices.picturae.com/archives/scans/"
 
 DOWNLOADURL = "https://download-images.memorix.nl/ams/download/fullsize/"
 
@@ -144,42 +144,8 @@ def flatten_ead_tree(c):
     return stack
 
 
-def getScanCount(path: str, collectionNumber: str, APIURL=APIURL):
-    """
-    Get the number of scans in a specific inventory.
-
-    Args:
-        path (str): Path in the new (d.d. 2020) search environment. You can see
-                    this by clicking on a inventory number and check the address
-                    bar. E.g. 1.6.
-        collectionNumber (str): Collection number in the SAA inventory.
-        APIURL ([type], optional): Picturae url. Defaults to APIURL.
-
-    Returns:
-        int: Number of scans in the inventory.
-    """
-
-    url = APIURL + collectionNumber + "/" + path
-    arguments = {
-        "apiKey": "eb37e65a-eb47-11e9-b95c-60f81db16c0e",
-        "lang": "nl_NL",
-        "findingAid": collectionNumber,
-        "path": path,
-        "callback": "callback_json8",
-        "start": 0,
-        "limit": 10,
-    }
-
-    r = requests.get(url, arguments)
-    data = r.text.replace("callback_json8(", "").replace(")", "")
-    data = json.loads(data)
-
-    return data["scans"]["scancount"]
-
-
 def getScans(
     path: str,
-    nscans: int,
     collectionNumber: str,
     start: int = 0,
     limit: int = 100,
@@ -192,14 +158,13 @@ def getScans(
         path (str): Path in the new (d.d. 2020) search environment. You can see
                     this by clicking on a inventory number and check the address
                     bar. E.g. 1.6.
-        nscans (int): How many scans are in this inventory? This can also be
-                      read from the SAA website.
         collectionNumber (str): Collection number in the SAA inventory.
         start (int, optional): Offset. Defaults to 0.
         limit (int, optional): Maximum number of scans to retrieve in one go.
                                Defaults to 100.
         APIURL ([type], optional): Picturae url. Defaults to APIURL.
     """
+    there_still_are_scans_to_download = True
 
     url = APIURL + collectionNumber + "/" + path
     arguments = {
@@ -213,16 +178,20 @@ def getScans(
     }
 
     scans = []
-    for i in range(math.ceil(nscans / 100)):
+    while there_still_are_scans_to_download:
         r = requests.get(url, arguments)
 
         data = r.text.replace("callback_json8(", "").replace(")", "")
         data = json.loads(data)
 
-        arguments["start"] += limit
         time.sleep(1)  # be gentle
 
         scans += data["scans"]["scans"]
+
+        if len(data["scans"]["scans"]) < limit:
+            there_still_are_scans_to_download = False
+        else:
+            arguments["start"] += limit
 
     return scans
 
@@ -290,11 +259,8 @@ def downloadFile(path, collectionNumber, inventoryNumber, folder, concordancefil
     if concordancefile:
         concordance = dict()
 
-    # 0. Get the scan count
-    nscans = getScanCount(path, collectionNumber)
-
     # 1. Obtain the scan metadata
-    scans = getScans(path, nscans, collectionNumber)
+    scans = getScans(path, collectionNumber)
 
     if not scans:
         print(f"No scans found for {inventoryNumber}")
@@ -308,7 +274,7 @@ def downloadFile(path, collectionNumber, inventoryNumber, folder, concordancefil
         uuid = scan["id"]
         name = scan["name"]
 
-        print(f"\t{n}/{nscans}\t{name}.jpg")
+        print(f"\t{n}\t{name}.jpg")
         downloadScan(uuid, name, folder)
 
         if concordancefile:
