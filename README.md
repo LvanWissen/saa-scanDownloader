@@ -14,6 +14,7 @@ Usage:
     downloadScans.py (-h | --help)
 
 Arguments:
+  url               URL to an EAD file.
   collectionNumber  Collection number in the SAA inventory.
   inventoryNumber   Inventory number from the collection.
   path              Path in the new (d.d. 2020) search environment. You can see
@@ -42,9 +43,9 @@ $ python downloadScans.py ead "https://archief.amsterdam/archives/xml/5001.ead.x
 Download a single inventory number from a collection:
 
 ```bash
-$ python downloadScans.py file 30398 11 1.11 69 data/jpg
+$ python downloadScans.py file 30398 11 1.11 data/jpg
 ```
 
 ```bash
-$ python downloadScans.py file 30398 11 1.11 69 data/jpg --concordance False
+$ python downloadScans.py file 30398 11 1.11 data/jpg --concordance False
 ```
